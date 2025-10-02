@@ -2,12 +2,15 @@
   "manifest_version": 3,
   "name": "AX Tree Dumper",
   "version": "1.0",
-  "description": "Dump accessibility tree using CDP",
+  "description": "Dump accessibility tree using chrome.automation",
   "permissions": [
-    "debugger",
     "activeTab",
     "downloads"
   ],
+  "automation": {
+    "desktop": false,
+    "interact": true
+  },
   "action": {
     "default_popup": "popup.html"
   },

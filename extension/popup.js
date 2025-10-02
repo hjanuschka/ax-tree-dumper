@@ -1,5 +1,26 @@
 let axTreeData = null;
 
+function serializeNode(node) {
+  const serialized = {
+    role: node.role,
+    name: node.name,
+    description: node.description,
+    value: node.value,
+    state: node.state,
+    location: node.location,
+    htmlAttributes: node.htmlAttributes,
+    children: []
+  };
+
+  if (node.children) {
+    for (let child of node.children) {
+      serialized.children.push(serializeNode(child));
+    }
+  }
+
+  return serialized;
+}
+
 document.getElementById('dumpBtn').addEventListener('click', async () => {
   const status = document.getElementById('status');
   const downloadBtn = document.getElementById('downloadBtn');
@@ -10,29 +31,34 @@ document.getElementById('dumpBtn').addEventListener('click', async () => {
     // Get current tab
     const [tab] = await chrome.tabs.query({active: true, currentWindow: true});
 
-    // Attach debugger
-    await chrome.debugger.attach({tabId: tab.id}, '1.3');
+    // Get automation tree for the tab
+    chrome.automation.getTree(tab.id, (rootNode) => {
+      if (chrome.runtime.lastError) {
+        status.textContent = `Error: ${chrome.runtime.lastError.message}`;
+        console.error(chrome.runtime.lastError);
+        return;
+      }
 
-    // Enable Accessibility domain
-    await chrome.debugger.sendCommand({tabId: tab.id}, 'Accessibility.enable');
+      // Serialize the tree
+      axTreeData = serializeNode(rootNode);
 
-    // Get full AX tree
-    const result = await chrome.debugger.sendCommand(
-      {tabId: tab.id},
-      'Accessibility.getFullAXTree'
-    );
+      // Count nodes
+      let nodeCount = 0;
+      const countNodes = (node) => {
+        nodeCount++;
+        if (node.children) {
+          node.children.forEach(countNodes);
+        }
+      };
+      countNodes(axTreeData);
 
-    axTreeData = result.nodes;
+      // Log to console
+      console.log('AX Tree:', axTreeData);
+      console.log(`Total nodes: ${nodeCount}`);
 
-    // Log to console
-    console.log('AX Tree:', axTreeData);
-    console.log(`Total nodes: ${axTreeData.length}`);
-
-    status.textContent = `✓ Dumped ${axTreeData.length} nodes. Check console or download.`;
-    downloadBtn.style.display = 'block';
-
-    // Detach debugger
-    await chrome.debugger.detach({tabId: tab.id});
+      status.textContent = `✓ Dumped ${nodeCount} nodes. Check console or download.`;
+      downloadBtn.style.display = 'block';
+    });
 
   } catch (err) {
     status.textContent = `Error: ${err.message}`;

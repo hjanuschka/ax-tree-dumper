@@ -1,4 +1,2 @@
-// Handle debugger detach events
-chrome.debugger.onDetach.addListener((source, reason) => {
-  console.log('Debugger detached:', reason);
-});
+// Background service worker for AX Tree Dumper
+console.log('AX Tree Dumper extension loaded');
