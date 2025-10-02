@@ -1,0 +1,14 @@
+{
+  "name": "xd2",
+  "version": "1.0.0",
+  "main": "dump-ax-tree.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "chrome-remote-interface": "^0.33.3"
+  }
+}
