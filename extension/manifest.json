@@ -2,11 +2,18 @@
   "manifest_version": 3,
   "name": "AX Tree Dumper",
   "version": "1.0",
-  "description": "Dump accessibility tree from DOM",
+  "description": "Dump accessibility tree from DOM with CSS selector queries",
   "permissions": [
     "activeTab",
     "scripting",
     "downloads"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["ax-tree-api.js", "content.js"],
+      "run_at": "document_idle"
+    }
   ],
   "action": {
     "default_popup": "popup.html"
